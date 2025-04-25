@@ -1,0 +1,1129 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Pulse",
+    "version": "1.0.0",
+    "description": "API para gestión de eventos, usuarios, reseñas y favoritos"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor de desarrollo"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Eventos",
+      "description": "Operaciones relacionadas con eventos"
+    },
+    {
+      "name": "Usuarios",
+      "description": "Operaciones relacionadas con usuarios"
+    },
+    {
+      "name": "Reseñas",
+      "description": "Operaciones relacionadas con reseñas de eventos"
+    },
+    {
+      "name": "Favoritos",
+      "description": "Operaciones relacionadas con eventos favoritos"
+    },
+    {
+      "name": "Recomendaciones",
+      "description": "Operaciones relacionadas con recomendaciones personalizadas"
+    }
+  ],
+  "paths": {
+    "/api/reviews/user": {
+      "get": {
+        "tags": ["Reseñas"],
+        "summary": "Obtiene todas las reseñas del usuario autenticado",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Lista de reseñas del usuario"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/reviews/event/{eventId}": {
+      "get": {
+        "tags": ["Reseñas"],
+        "summary": "Obtiene todas las reseñas de un evento",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eventId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID del evento"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de reseñas del evento"
+          },
+          "404": {
+            "description": "Evento no encontrado"
+          }
+        }
+      }
+    },
+    "/api/reviews": {
+      "post": {
+        "tags": ["Reseñas"],
+        "summary": "Crea una nueva reseña",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["event", "rating", "comment"],
+                "properties": {
+                  "event": {
+                    "type": "string",
+                    "description": "ID del evento"
+                  },
+                  "rating": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "Puntuación (1-5)"
+                  },
+                  "comment": {
+                    "type": "string",
+                    "description": "Texto de la reseña"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reseña creada exitosamente"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/reviews/{id}": {
+      "put": {
+        "tags": ["Reseñas"],
+        "summary": "Actualiza una reseña existente",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID de la reseña"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rating": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "Puntuación (1-5)"
+                  },
+                  "comment": {
+                    "type": "string",
+                    "description": "Texto de la reseña"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reseña actualizada exitosamente"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Reseñas"],
+        "summary": "Elimina una reseña",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID de la reseña"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reseña eliminada exitosamente"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/favorites": {
+      "get": {
+        "tags": ["Favoritos"],
+        "summary": "Obtiene todos los favoritos del usuario",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Lista de favoritos"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Favoritos"],
+        "summary": "Añade un evento a favoritos",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["eventId"],
+                "properties": {
+                  "eventId": {
+                    "type": "string",
+                    "description": "ID del evento"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Favorito añadido exitosamente"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/favorites/{eventId}": {
+      "delete": {
+        "tags": ["Favoritos"],
+        "summary": "Elimina un evento de favoritos",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eventId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID del evento"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Favorito eliminado exitosamente"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/favorites/check/{eventId}": {
+      "get": {
+        "tags": ["Favoritos"],
+        "summary": "Verifica si un evento está en favoritos",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eventId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID del evento"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado del favorito"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": ["Usuarios"],
+        "summary": "Obtiene todos los usuarios",
+        "responses": {
+          "200": {
+            "description": "Lista de usuarios"
+          }
+        }
+      }
+    },
+    "/api/users/profile": {
+      "get": {
+        "tags": ["Usuarios"],
+        "summary": "Obtiene el perfil del usuario autenticado",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Información del perfil"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/users/register": {
+      "post": {
+        "tags": ["Usuarios"],
+        "summary": "Registra un nuevo usuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "email", "password"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Nombre de usuario"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Correo electrónico"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Contraseña"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario creado exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          }
+        }
+      }
+    },
+    "/api/users/login": {
+      "post": {
+        "tags": ["Usuarios"],
+        "summary": "Inicia sesión de usuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Correo electrónico"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Contraseña"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login exitoso, retorna token JWT"
+          },
+          "401": {
+            "description": "Credenciales inválidas"
+          }
+        }
+      }
+    },
+    "/api/users/update": {
+      "put": {
+        "tags": ["Usuarios"],
+        "summary": "Actualiza información del usuario",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Nombre de usuario"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Correo electrónico"
+                  },
+                  "avatar": {
+                    "type": "string",
+                    "description": "URL de la imagen de perfil"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuario actualizado exitosamente"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/users/change-password": {
+      "put": {
+        "tags": ["Usuarios"],
+        "summary": "Cambia la contraseña del usuario",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["currentPassword", "newPassword"],
+                "properties": {
+                  "currentPassword": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Contraseña actual"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Nueva contraseña"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contraseña actualizada exitosamente"
+          },
+          "400": {
+            "description": "Contraseña actual incorrecta"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/users/delete": {
+      "delete": {
+        "tags": ["Usuarios"],
+        "summary": "Elimina la cuenta del usuario",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Cuenta eliminada exitosamente"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/users/request-password-reset": {
+      "post": {
+        "tags": ["Usuarios"],
+        "summary": "Solicita un restablecimiento de contraseña",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Correo electrónico del usuario"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Solicitud procesada (por seguridad, siempre devuelve 200 si el proceso fue exitoso, incluso si el email no existe)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Si el email existe, se ha enviado un enlace de restablecimiento"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor"
+          }
+        }
+      }
+    },
+    "/api/users/reset-password": {
+      "post": {
+        "tags": ["Usuarios"],
+        "summary": "Restablece la contraseña usando un token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token", "newPassword"],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "Token recibido por email"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Nueva contraseña"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contraseña actualizada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Contraseña actualizada exitosamente"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Token inválido o expirado"
+          },
+          "500": {
+            "description": "Error del servidor"
+          }
+        }
+      }
+    },
+    "/api/events": {
+      "get": {
+        "tags": ["Eventos"],
+        "summary": "Obtiene todos los eventos",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Número de página"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Eventos por página"
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtrar por categoría"
+          },
+          {
+            "in": "query",
+            "name": "city",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtrar por ciudad"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de eventos"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Eventos"],
+        "summary": "Crea un nuevo evento",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "startDate",
+                  "endDate",
+                  "venue",
+                  "category",
+                  "genre",
+                  "coordinates"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Nombre del evento"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Descripción del evento"
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Fecha de inicio"
+                  },
+                  "endDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Fecha de finalización"
+                  },
+                  "venue": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Nombre del lugar"
+                      },
+                      "address": {
+                        "type": "string",
+                        "description": "Dirección"
+                      },
+                      "city": {
+                        "type": "string",
+                        "description": "Ciudad"
+                      }
+                    }
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Categoría del evento"
+                  },
+                  "genre": {
+                    "type": "string",
+                    "description": "Género del evento"
+                  },
+                  "coordinates": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number",
+                        "description": "Latitud"
+                      },
+                      "lng": {
+                        "type": "number",
+                        "description": "Longitud"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Evento creado exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/events/{id}": {
+      "get": {
+        "tags": ["Eventos"],
+        "summary": "Obtiene un evento por ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID del evento"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del evento"
+          },
+          "404": {
+            "description": "Evento no encontrado"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Eventos"],
+        "summary": "Actualiza un evento existente",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID del evento"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Nombre del evento"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Descripción del evento"
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Fecha de inicio"
+                  },
+                  "endDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Fecha de finalización"
+                  },
+                  "venue": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Nombre del lugar"
+                      },
+                      "address": {
+                        "type": "string",
+                        "description": "Dirección"
+                      },
+                      "city": {
+                        "type": "string",
+                        "description": "Ciudad"
+                      }
+                    }
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Categoría del evento"
+                  },
+                  "genre": {
+                    "type": "string",
+                    "description": "Género del evento"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evento actualizado exitosamente"
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "404": {
+            "description": "Evento no encontrado"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Eventos"],
+        "summary": "Elimina un evento",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID del evento"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Evento eliminado exitosamente"
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "404": {
+            "description": "Evento no encontrado"
+          }
+        }
+      }
+    },
+    "/api/events/featured": {
+      "get": {
+        "tags": ["Eventos"],
+        "summary": "Obtiene eventos destacados",
+        "responses": {
+          "200": {
+            "description": "Lista de eventos destacados"
+          }
+        }
+      }
+    },
+    "/api/events/city/{city}": {
+      "get": {
+        "tags": ["Eventos"],
+        "summary": "Obtiene eventos por ciudad",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "city",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nombre de la ciudad"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de eventos en la ciudad especificada"
+          }
+        }
+      }
+    },
+    "/api/events/nearby": {
+      "get": {
+        "tags": ["Eventos"],
+        "summary": "Obtiene eventos cercanos a una ubicación",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "lat",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Latitud"
+          },
+          {
+            "in": "query",
+            "name": "lng",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Longitud"
+          },
+          {
+            "in": "query",
+            "name": "distance",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Distancia máxima en kilómetros"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de eventos cercanos"
+          }
+        }
+      }
+    },
+    "/api/events/search": {
+      "get": {
+        "tags": ["Eventos"],
+        "summary": "Busca eventos por texto",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Término de búsqueda"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultados de la búsqueda"
+          }
+        }
+      }
+    },
+    "/api/recommendations": {
+      "get": {
+        "tags": ["Recomendaciones"],
+        "summary": "Obtiene recomendaciones personalizadas para el usuario autenticado",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Recomendaciones personalizadas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "basedOnPreferences": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Event"
+                          }
+                        },
+                        "basedOnHistory": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Event"
+                          }
+                        },
+                        "popular": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Event"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    },
+    "/api/recommendations/similar/{eventId}": {
+      "get": {
+        "tags": ["Recomendaciones"],
+        "summary": "Obtiene eventos similares a un evento específico",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eventId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID del evento"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de eventos similares",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "404": {
+            "description": "Evento no encontrado"
+          }
+        }
+      }
+    },
+    "/api/recommendations/preferences": {
+      "put": {
+        "tags": ["Recomendaciones"],
+        "summary": "Actualiza las preferencias del usuario para mejorar las recomendaciones",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["preferences"],
+                "properties": {
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Lista de categorías o géneros preferidos"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Preferencias actualizadas exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "preferences": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+} 
