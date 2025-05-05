@@ -1,7 +1,5 @@
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('../swagger.json');
-const express = require('express');
-const path = require('path');
 
 // Opciones de personalización de Swagger UI con tema oscuro espectacular
 const options = {
@@ -446,110 +444,18 @@ const options = {
   `,
   swaggerOptions: {
     tagsSorter: function(a, b) {
+      // Orden personalizado de recursos
       const tagsOrder = ['Eventos', 'Usuarios', 'Reseñas', 'Favoritos'];
       return tagsOrder.indexOf(a) - tagsOrder.indexOf(b);
     },
-    operationsSorter: 'method',
-    docExpansion: 'list',
-    defaultModelsExpandDepth: 0
+    operationsSorter: 'method', // Ordena por método HTTP: GET, POST, PUT, DELETE
+    docExpansion: 'list', // Muestra las secciones cerradas inicialmente
+    defaultModelsExpandDepth: 0 // Oculta los modelos por defecto
   }
 };
 
 module.exports = {
   setup: (app) => {
-    // Ruta tradicional con swagger-ui-express
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
-    
-    // Ruta alternativa para servir la documentación mediante un HTML estático
-    app.get('/docs', (req, res) => {
-      res.send(`
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8">
-          <title>API Pulse - Documentación</title>
-          <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui.css" />
-          <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-              background-color: #0a0a12;
-              color: #ffffff;
-              margin: 0;
-            }
-            
-            .swagger-ui .topbar {
-              background: linear-gradient(90deg, #0b0b13, #1a1a2e);
-              border-bottom: 2px solid #ff006e;
-              height: 60px;
-              box-shadow: 0 4px 20px rgba(255, 0, 110, 0.3);
-            }
-            
-            .swagger-ui .topbar .wrapper, 
-            .swagger-ui .topbar a, 
-            .swagger-ui .topbar img {
-              display: none !important;
-            }
-            
-            .swagger-ui .info .title {
-              color: #ffffff;
-              font-size: 36px;
-              font-weight: 700;
-              text-align: center;
-              text-shadow: 0 0 10px rgba(255, 0, 110, 0.7);
-              border-bottom: none;
-            }
-            
-            .swagger-ui .info .description {
-              color: #ffffff;
-              text-align: center;
-            }
-            
-            .swagger-ui .opblock-tag {
-              color: #ffffff;
-            }
-            
-            .swagger-ui .scheme-container {
-              background-color: #12121f;
-            }
-          </style>
-        </head>
-        <body>
-          <div id="swagger-ui"></div>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-bundle.js"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-standalone-preset.js"></script>
-          <script>
-            window.onload = function() {
-              const ui = SwaggerUIBundle({
-                url: "/swagger.json",
-                dom_id: '#swagger-ui',
-                deepLinking: true,
-                presets: [
-                  SwaggerUIBundle.presets.apis,
-                  SwaggerUIStandalonePreset
-                ],
-                plugins: [
-                  SwaggerUIBundle.plugins.DownloadUrl
-                ],
-                layout: "StandaloneLayout",
-                tagsSorter: function(a, b) {
-                  const tagsOrder = ['Eventos', 'Usuarios', 'Reseñas', 'Favoritos'];
-                  return tagsOrder.indexOf(a) - tagsOrder.indexOf(b);
-                },
-                operationsSorter: 'method',
-                docExpansion: 'list',
-                defaultModelsExpandDepth: 0
-              });
-              window.ui = ui;
-            };
-          </script>
-        </body>
-        </html>
-      `);
-    });
-    
-    // Servir el archivo swagger.json directamente
-    app.get('/swagger.json', (req, res) => {
-      res.json(swaggerDocument);
-    });
   }
 };

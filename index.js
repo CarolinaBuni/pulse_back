@@ -3,6 +3,7 @@ const { connectDB } = require( "./src/config/db" );
 const cloudinary = require( "cloudinary" ).v2;
 const express = require( "express" );
 const cors = require('cors');
+const path = require('path');
 const passport = require('./src/config/passport');
 const swagger = require('./src/config/swagger');
 const userRouter = require( "./src/api/routes/user" );
@@ -32,6 +33,19 @@ app.use(passport.initialize());
 
 // Configurar Swagger
 swagger.setup(app);
+
+// Servir archivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Servir swagger.json directamente
+app.get('/swagger.json', (req, res) => {
+     res.json(require('./src/swagger.json'));
+});
+
+// Ruta para el Swagger UI HTML estático
+app.get('/docs', (req, res) => {
+     res.sendFile(path.join(__dirname, 'public', 'swagger-ui.html'));
+});
 
 // Ruta principal
 app.get('/', (req, res) => {
@@ -71,9 +85,9 @@ app.use( ( req, res ) => {
      return res.status( 404 ).json( "Route not found" );
 } );
 
-const PORT = process.env.PORT || 3000;
-app.listen( PORT, () => {
-     console.log( `Server is running on port: ${PORT}` );
-     console.log( `API Documentation: /api-docs` );
+
+app.listen( 3000, () => {
+     console.log( `Server is running on: http://localhost:3000` );
+     console.log( `API Documentation: http://localhost:3000/api-docs` );
 } );
 
