@@ -37,7 +37,16 @@ swagger.setup(app);
 app.get('/', (req, res) => {
     res.json({
         message: 'Bienvenido a la API de Pulse',
-        documentation: '/api-docs',
+        documentation: [
+            {
+                name: 'Swagger UI (tradicional)',
+                url: '/api-docs'
+            },
+            {
+                name: 'Documentación alternativa (recomendada para Vercel)',
+                url: '/docs'
+            }
+        ],
         endpoints: {
             users: '/api/users',
             events: '/api/events',
