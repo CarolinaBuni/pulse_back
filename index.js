@@ -33,6 +33,22 @@ app.use(passport.initialize());
 // Configurar Swagger
 swagger.setup(app);
 
+// Ruta principal
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Bienvenido a la API de Pulse',
+        documentation: '/api-docs',
+        endpoints: {
+            users: '/api/users',
+            events: '/api/events',
+            favorites: '/api/favorites',
+            reviews: '/api/reviews',
+            auth: '/api/auth',
+            recommendations: '/api/recommendations'
+        }
+    });
+});
+
 // Rutas API
 app.use( "/api/users", userRouter );
 app.use( "/api/events", eventRouter );
@@ -46,9 +62,9 @@ app.use( ( req, res ) => {
      return res.status( 404 ).json( "Route not found" );
 } );
 
-
-app.listen( 3000, () => {
-     console.log( `Server is running on: http://localhost:3000` );
-     console.log( `API Documentation: http://localhost:3000/api-docs` );
+const PORT = process.env.PORT || 3000;
+app.listen( PORT, () => {
+     console.log( `Server is running on port: ${PORT}` );
+     console.log( `API Documentation: /api-docs` );
 } );
 
