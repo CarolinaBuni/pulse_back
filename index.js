@@ -2,6 +2,7 @@ require( "dotenv" ).config();
 const { connectDB } = require( "./src/config/db" );
 const cloudinary = require( "cloudinary" ).v2;
 const express = require( "express" );
+const cors = require('cors');
 const passport = require('./src/config/passport');
 const swagger = require('./src/config/swagger');
 const userRouter = require( "./src/api/routes/user" );
@@ -20,6 +21,9 @@ cloudinary.config( {
      api_key: process.env.API_KEY,
      api_secret: process.env.API_SECRET,
 } );
+
+// Habilitar CORS
+app.use(cors());
 
 app.use( express.json() );
 
