@@ -53,12 +53,14 @@ app.get( '/', ( req, res ) => {
           message: 'Bienvenido a la API de Pulse',
           documentation: [
                {
-                    name: 'Swagger UI (tradicional)',
-                    url: '/api-docs'
+                    name: 'Documentación recomendada',
+                    url: '/docs',
+                    notes: 'Utiliza esta versión en el entorno de Vercel'
                },
                {
-                    name: 'Documentación alternativa (recomendada para Vercel)',
-                    url: '/docs'
+                    name: 'Swagger UI tradicional',
+                    url: '/api-docs',
+                    notes: 'Puede no funcionar correctamente en Vercel'
                }
           ],
           endpoints: {
