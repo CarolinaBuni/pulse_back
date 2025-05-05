@@ -7,6 +7,10 @@
   },
   "servers": [
     {
+      "url": "https://pulse-back-qjhc-8lwapkqun-powermbas-projects.vercel.app",
+      "description": "Servidor de producción en Vercel"
+    },
+    {
       "url": "http://localhost:3000",
       "description": "Servidor de desarrollo"
     }
