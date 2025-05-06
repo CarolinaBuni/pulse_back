@@ -51,18 +51,11 @@ app.get( '/docs', ( req, res ) => {
 app.get( '/', ( req, res ) => {
      res.json( {
           message: 'Bienvenido a la API de Pulse',
-          documentation: [
-               {
-                    name: 'Documentación recomendada',
-                    url: '/docs',
-                    notes: 'Utiliza esta versión en el entorno de Vercel'
-               },
-               {
-                    name: 'Swagger UI tradicional',
-                    url: '/api-docs',
-                    notes: 'Puede no funcionar correctamente en Vercel'
-               }
-          ],
+          documentation: {
+               local: '/api-docs',
+               production: '/docs',
+               nota: 'En entorno de desarrollo local, usa /api-docs. En producción (Vercel), usa /docs.'
+          },
           endpoints: {
                users: '/api/users',
                events: '/api/events',
