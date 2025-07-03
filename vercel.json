@@ -1,26 +1,31 @@
 {
   "version": 2,
-  "functions": {
-    "index.js": {
-      "runtime": "@vercel/node"
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node"
     }
-  },
-  "rewrites": [
+  ],
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/index.js"
+      "src": "/swagger.json",
+      "dest": "/index.js"
     },
     {
-      "source": "/docs",
-      "destination": "/index.js"
+      "src": "/docs",
+      "dest": "/index.js"
     },
     {
-      "source": "/api-docs/(.*)",
-      "destination": "/index.js"
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
     },
     {
-      "source": "/swagger.json",
-      "destination": "/index.js"
+      "src": "/api-docs/(.*)",
+      "dest": "/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.js"
     }
   ],
   "headers": [
