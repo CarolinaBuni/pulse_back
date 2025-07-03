@@ -5,6 +5,12 @@ const getAllEvents = async ( req, res ) => {
      try {
           let query = {};
 
+          // Por defecto, mostrar solo eventos futuros
+          query.startDate = { $gte: new Date() };
+
+          // Por defecto, mostrar solo eventos de Madrid
+          // query['venue.city'] = "Madrid";
+
           // Filtros opcionales
           if ( req.query.category ) {
                query.category = req.query.category;
@@ -14,22 +20,41 @@ const getAllEvents = async ( req, res ) => {
                query.genre = req.query.genre;
           }
 
+          // Si se especifica una ciudad diferente
           if ( req.query.city ) {
-               query[ 'venue.city' ] = { $regex: req.query.city, $options: 'i' };
+               query[ 'venue.city' ] = req.query.city;
           }
 
-          // Filtro por fecha
+          // Si se especifica una fecha de inicio diferente
           if ( req.query.startDate ) {
                query.startDate = { $gte: new Date( req.query.startDate ) };
+          }
+
+          // Si se especifica una fecha de fin
+          if ( req.query.endDate ) {
+               const endDate = new Date( req.query.endDate );
+               endDate.setHours( 23, 59, 59, 999 ); // Incluir todo el día
+
+               if ( query.startDate ) {
+                    // Si ya hay filtro de startDate, crear rango
+                    query.startDate = {
+                         $gte: query.startDate.$gte,
+                         $lte: endDate
+                    };
+               } else {
+                    // Solo filtro de endDate
+                    query.startDate = { $lte: endDate };
+               }
           }
 
           if ( req.query.featured === 'true' ) {
                query.featured = true;
           }
 
+
           // Paginación
           const page = parseInt( req.query.page ) || 1;
-          const limit = parseInt( req.query.limit ) || 10;
+          const limit = parseInt( req.query.limit ) || 1000; // Aumentado a 1000 para mostrar todos los eventos
           const skip = ( page - 1 ) * limit;
 
           // Ejecutar consulta
@@ -198,27 +223,7 @@ const deleteEvent = async ( req, res ) => {
      }
 };
 
-// Obtener eventos destacados
-const getFeaturedEvents = async ( req, res ) => {
-     try {
-          const featuredEvents = await Event.find( { featured: true } )
-               .sort( { startDate: 1 } )
-               .limit( 6 );
 
-          return res.status( 200 ).json( {
-               success: true,
-               count: featuredEvents.length,
-               data: featuredEvents
-          } );
-     } catch ( error ) {
-          console.error( 'Error al obtener eventos destacados:', error );
-          return res.status( 500 ).json( {
-               success: false,
-               message: 'Error al obtener eventos destacados',
-               error: error.message
-          } );
-     }
-};
 
 // Obtener eventos por ciudad
 const getEventsByCity = async ( req, res ) => {
@@ -256,20 +261,140 @@ const searchEvents = async ( req, res ) => {
                } );
           }
 
-          // Buscar usando el índice de texto
-          const events = await Event.find(
-               { $text: { $search: q } },
-               // Agregar puntuación de relevancia
-               { score: { $meta: 'textScore' } }
-          )
-               // Ordenar por relevancia
-               .sort( { score: { $meta: 'textScore' } } )
-               .limit( 20 );
+          // Escapar caracteres especiales de regex y crear patrón de búsqueda flexible
+          const escapedQuery = q.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
+          const searchRegex = new RegExp( escapedQuery, 'i' ); // 'i' para case-insensitive
+
+          // Construir la consulta base con búsqueda flexible en múltiples campos
+          let query = {
+               $or: [
+                    { name: { $regex: searchRegex } },
+                    { description: { $regex: searchRegex } },
+                    { genre: { $regex: searchRegex } },
+                    { 'venue.name': { $regex: searchRegex } },
+                    { 'venue.city': { $regex: searchRegex } },
+                    { 'venue.address': { $regex: searchRegex } }
+               ]
+          };
+
+          // Por defecto, mostrar solo eventos futuros
+          query.startDate = { $gte: new Date() };
+
+          // Filtros opcionales adicionales
+          const additionalFilters = {};
+
+          if ( req.query.category ) {
+               additionalFilters.category = req.query.category;
+          }
+
+          if ( req.query.genre ) {
+               additionalFilters.genre = req.query.genre;
+          }
+
+          // Si se especifica una ciudad específica en filtros
+          if ( req.query.city ) {
+               additionalFilters[ 'venue.city' ] = req.query.city;
+          }
+
+          // Si se especifica una fecha de inicio diferente
+          if ( req.query.startDate ) {
+               additionalFilters.startDate = { $gte: new Date( req.query.startDate ) };
+          }
+
+          // Si se especifica una fecha de fin
+          if ( req.query.endDate ) {
+               const endDate = new Date( req.query.endDate );
+               endDate.setHours( 23, 59, 59, 999 ); // Incluir todo el día
+
+               if ( additionalFilters.startDate ) {
+                    // Si ya hay filtro de startDate, crear rango
+                    additionalFilters.startDate = {
+                         $gte: additionalFilters.startDate.$gte,
+                         $lte: endDate
+                    };
+               } else {
+                    // Solo filtro de endDate
+                    additionalFilters.startDate = { $lte: endDate };
+               }
+          }
+
+          if ( req.query.featured === 'true' ) {
+               additionalFilters.featured = true;
+          }
+
+          // Filtros de precio
+          if ( req.query.minPrice ) {
+               additionalFilters[ 'price.min' ] = { $gte: parseFloat( req.query.minPrice ) };
+          }
+          if ( req.query.maxPrice ) {
+               additionalFilters[ 'price.max' ] = { $lte: parseFloat( req.query.maxPrice ) };
+          }
+
+          // Combinar la búsqueda de texto con filtros adicionales
+          if ( Object.keys( additionalFilters ).length > 0 ) {
+               query = { $and: [ query, additionalFilters ] };
+          }
+
+          // Buscar eventos
+          const events = await Event.find( query )
+               .sort( {
+                    // Priorizar eventos que coincidan en el nombre
+                    name: 1,
+                    startDate: 1
+               } )
+               .limit( 1000 ); // Aumentamos el límite para búsquedas
+
+          // Calcular relevancia simple basada en dónde se encuentra la coincidencia
+          const eventsWithScore = events.map( event => {
+               let score = 0;
+               const queryLower = q.toLowerCase();
+               const eventObj = event.toObject();
+
+               // Mayor puntuación si coincide en el nombre
+               if ( event.name && event.name.toLowerCase().includes( queryLower ) ) {
+                    score += 10;
+                    // Bonus si coincide al inicio del nombre
+                    if ( event.name.toLowerCase().startsWith( queryLower ) ) {
+                         score += 5;
+                    }
+               }
+
+               // Puntuación media si coincide en género
+               if ( event.genre && event.genre.toLowerCase().includes( queryLower ) ) {
+                    score += 5;
+               }
+
+               // Puntuación baja si coincide en otros campos
+               if ( event.description && event.description.toLowerCase().includes( queryLower ) ) {
+                    score += 2;
+               }
+
+               if ( event.venue?.name && event.venue.name.toLowerCase().includes( queryLower ) ) {
+                    score += 3;
+               }
+
+               if ( event.venue?.city && event.venue.city.toLowerCase().includes( queryLower ) ) {
+                    score += 3;
+               }
+
+               eventObj.searchScore = score;
+               return eventObj;
+          } );
+
+          // Ordenar por puntuación de relevancia
+          eventsWithScore.sort( ( a, b ) => b.searchScore - a.searchScore );
+
+          // Remover el campo de puntuación antes de enviar
+          const finalEvents = eventsWithScore.map( event => {
+               delete event.searchScore;
+               return event;
+          } );
 
           return res.status( 200 ).json( {
                success: true,
-               count: events.length,
-               data: events
+               count: finalEvents.length,
+               data: finalEvents,
+               searchTerm: q
           } );
      } catch ( error ) {
           console.error( 'Error en búsqueda de eventos:', error );
@@ -281,76 +406,55 @@ const searchEvents = async ( req, res ) => {
      }
 };
 
-// Buscar eventos cercanos por coordenadas
-const getNearbyEvents = async ( req, res ) => {
+
+
+// Obtener eventos pasados
+const getPastEvents = async ( req, res ) => {
      try {
-          const { lat, lng, radius = 5 } = req.query; // radio en kilómetros, por defecto 5km
+          let query = {};
 
-          if ( !lat || !lng ) {
-               return res.status( 400 ).json( {
-                    success: false,
-                    message: 'Se requieren latitud y longitud'
-               } );
+          // Solo eventos pasados
+          query.startDate = { $lt: new Date() };
+
+          // Filtros opcionales
+          if ( req.query.category ) {
+               query.category = req.query.category;
           }
 
-          // Convertir a números
-          const latitude = parseFloat( lat );
-          const longitude = parseFloat( lng );
-          const radiusInKm = parseFloat( radius );
-
-          if ( isNaN( latitude ) || isNaN( longitude ) || isNaN( radiusInKm ) ) {
-               return res.status( 400 ).json( {
-                    success: false,
-                    message: 'Coordenadas o radio inválidos'
-               } );
+          if ( req.query.genre ) {
+               query.genre = req.query.genre;
           }
 
-          // Calcular los límites de latitud y longitud para un cuadrado alrededor del punto
-          // Aproximación: 1 grado de latitud ≈ 111 km
-          const latDelta = radiusInKm / 111;
-          const lngDelta = radiusInKm / ( 111 * Math.cos( latitude * ( Math.PI / 180 ) ) );
+          if ( req.query.city ) {
+               query[ 'venue.city' ] = { $regex: req.query.city, $options: 'i' };
+          }
 
-          // Buscar eventos dentro del cuadrado
-          const events = await Event.find( {
-               'coordinates.lat': { $gte: latitude - latDelta, $lte: latitude + latDelta },
-               'coordinates.lng': { $gte: longitude - lngDelta, $lte: longitude + lngDelta }
-          } ).limit( 20 );
+          // Paginación
+          const page = parseInt( req.query.page ) || 1;
+          const limit = parseInt( req.query.limit ) || 20;
+          const skip = ( page - 1 ) * limit;
 
-          // Refinar los resultados calculando la distancia exacta
-          const eventsWithDistance = events.map( event => {
-               // Calcular distancia usando la fórmula de Haversine
-               const R = 6371; // Radio de la Tierra en km
-               const dLat = ( event.coordinates.lat - latitude ) * ( Math.PI / 180 );
-               const dLng = ( event.coordinates.lng - longitude ) * ( Math.PI / 180 );
-               const a =
-                    Math.sin( dLat / 2 ) * Math.sin( dLat / 2 ) +
-                    Math.cos( latitude * ( Math.PI / 180 ) ) * Math.cos( event.coordinates.lat * ( Math.PI / 180 ) ) *
-                    Math.sin( dLng / 2 ) * Math.sin( dLng / 2 );
-               const c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
-               const distance = R * c; // Distancia en km
+          // Ejecutar consulta - ordenar por fecha descendente (más recientes primero)
+          const events = await Event.find( query )
+               .sort( { startDate: -1 } )
+               .skip( skip )
+               .limit( limit );
 
-               // Solo incluir eventos dentro del radio especificado
-               if ( distance <= radiusInKm ) {
-                    const eventObj = event.toObject();
-                    eventObj.distance = distance; // Añadir distancia al objeto
-                    return eventObj;
-               }
-               return null;
-          } ).filter( Boolean ); // Eliminar eventos fuera del radio
-
-          // Ordenar por distancia
-          eventsWithDistance.sort( ( a, b ) => a.distance - b.distance );
+          // Contar total para paginación
+          const total = await Event.countDocuments( query );
 
           return res.status( 200 ).json( {
                success: true,
-               count: eventsWithDistance.length,
-               data: eventsWithDistance
+               count: events.length,
+               totalPages: Math.ceil( total / limit ),
+               currentPage: page,
+               data: events
           } );
      } catch ( error ) {
-          console.error( 'Error al buscar eventos cercanos:', error );
+          console.error( 'Error al obtener eventos pasados:', error );
           return res.status( 500 ).json( {
                success: false,
-               message: 'Error al buscar eventos cercanos',
+               message: 'Error al obtener eventos pasados',
                error: error.message
           } );
      }
@@ -362,8 +466,7 @@ module.exports = {
      createEvent,
      updateEvent,
      deleteEvent,
-     getFeaturedEvents,
      getEventsByCity,
      searchEvents,
-     getNearbyEvents
+     getPastEvents
 };
