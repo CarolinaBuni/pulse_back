@@ -51,7 +51,6 @@ const getAllEvents = async ( req, res ) => {
                query.featured = true;
           }
 
-
           // Paginación
           const page = parseInt( req.query.page ) || 1;
           const limit = parseInt( req.query.limit ) || 1000; // Aumentado a 1000 para mostrar todos los eventos
