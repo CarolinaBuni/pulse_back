@@ -68,7 +68,7 @@ async function seedEvents() {
                     } );
           } );
 
-          // Limpiar la colección de eventos existente (opcional)
+          // Limpiar la colección de eventos existente 
           console.log( 'Limpiando la colección de eventos...' );
           await Event.deleteMany( {} );
 

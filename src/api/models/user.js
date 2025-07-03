@@ -1,5 +1,6 @@
 const mongoose = require( 'mongoose' );
 const bcrypt = require( 'bcrypt' );
+const { getRandomAvatar } = require( '../../utils/avatars' );
 
 const userSchema = new mongoose.Schema( {
      username: {
@@ -18,7 +19,7 @@ const userSchema = new mongoose.Schema( {
      },
      avatar: {
           type: String,
-          default: 'https://via.placeholder.com/150'
+          default: getRandomAvatar
      },
      role: {
           type: String,
@@ -28,19 +29,10 @@ const userSchema = new mongoose.Schema( {
      preferences: {
           type: [ String ],
           default: []
-     },
-     // Campos para autenticación OAuth
-     googleId: {
-          type: String,
-          sparse: true // Permite que sea único pero opcional
-     },
-     // Campos para recuperación de contraseña
-     resetPasswordToken: String,
-     resetPasswordExpires: Date
+     }
 }, { timestamps: true } );
 
 userSchema.pre( 'save', async function ( next ) {
-     // Solo encriptar si la contraseña ha sido modificada y existe
      if ( this.password && this.isModified( 'password' ) ) {
           this.password = await bcrypt.hash( this.password, 10 );
      }

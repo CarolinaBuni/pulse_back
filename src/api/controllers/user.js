@@ -1,8 +1,15 @@
 const User = require( '../models/user' );
 const bcrypt = require( 'bcrypt' );
 const jwt = require( 'jsonwebtoken' );
-const { generateAccessToken, generateRefreshToken } = require( './auth' );
-const crypto = require('crypto');
+
+// Generar token JWT simple
+const generateAccessToken = ( user ) => {
+     return jwt.sign(
+          { id: user._id, role: user.role },
+          process.env.JWT_SECRET || 'secreto_temporal',
+          { expiresIn: '24h' } 
+     );
+};
 
 // Registro de usuario
 const register = async ( req, res ) => {
@@ -21,19 +28,18 @@ const register = async ( req, res ) => {
                } );
           }
 
-          // Crear nuevo usuario
+          // Crear nuevo usuario (pide avatar pero que pasa si no sube ninguno)
           const newUser = new User( {
                username,
                email,
-               password, // Se encriptará por el middleware en User.js
-               avatar    // URL del avatar seleccionado
+               password, 
+               avatar    
           } );
 
           await newUser.save();
 
-          // Generar tokens
-          const accessToken = generateAccessToken(newUser);
-          const refreshToken = await generateRefreshToken(newUser._id);
+          // Generar token
+          const accessToken = generateAccessToken( newUser );
 
           return res.status( 201 ).json( {
                success: true,
@@ -45,8 +51,7 @@ const register = async ( req, res ) => {
                          avatar: newUser.avatar,
                          role: newUser.role
                     },
-                    accessToken,
-                    refreshToken
+                    accessToken
                }
           } );
      } catch ( error ) {
@@ -84,9 +89,8 @@ const login = async ( req, res ) => {
                } );
           }
 
-          // Generar tokens
-          const accessToken = generateAccessToken(user);
-          const refreshToken = await generateRefreshToken(user._id);
+          // Generar token
+          const accessToken = generateAccessToken( user );
 
           return res.status( 200 ).json( {
                success: true,
@@ -98,8 +102,7 @@ const login = async ( req, res ) => {
                          avatar: user.avatar,
                          role: user.role
                     },
-                    accessToken,
-                    refreshToken
+                    accessToken
                }
           } );
      } catch ( error ) {
@@ -124,6 +127,8 @@ const getProfile = async ( req, res ) => {
                     message: 'Usuario no encontrado'
                } );
           }
+
+          console.log( 'Enviando perfil de usuario con avatar:', user.avatar );
 
           return res.status( 200 ).json( {
                success: true,
@@ -230,58 +235,6 @@ const updateUser = async ( req, res ) => {
      }
 };
 
-// Cambiar contraseña
-const changePassword = async ( req, res ) => {
-     try {
-          const { currentPassword, newPassword } = req.body;
-
-          // Verificar que se proporcionaron ambas contraseñas
-          if ( !currentPassword || !newPassword ) {
-               return res.status( 400 ).json( {
-                    success: false,
-                    message: 'Se requiere contraseña actual y nueva'
-               } );
-          }
-
-          // Obtener usuario con contraseña
-          const user = await User.findById( req.user.id );
-
-          if ( !user ) {
-               return res.status( 404 ).json( {
-                    success: false,
-                    message: 'Usuario no encontrado'
-               } );
-          }
-
-          // Verificar contraseña actual
-          const isMatch = await bcrypt.compare( currentPassword, user.password );
-          if ( !isMatch ) {
-               return res.status( 400 ).json( {
-                    success: false,
-                    message: 'Contraseña actual incorrecta'
-               } );
-          }
-
-          // Asignar nueva contraseña (se encriptará por el middleware pre save)
-          user.password = newPassword;
-
-          // Guardar cambios
-          await user.save();
-
-          return res.status( 200 ).json( {
-               success: true,
-               message: 'Contraseña actualizada correctamente'
-          } );
-     } catch ( error ) {
-          console.error( 'Error al cambiar contraseña:', error );
-          return res.status( 500 ).json( {
-               success: false,
-               message: 'Error al cambiar contraseña',
-               error: error.message
-          } );
-     }
-};
-
 // Eliminar cuenta de usuario
 const deleteAccount = async ( req, res ) => {
      try {
@@ -308,95 +261,7 @@ const deleteAccount = async ( req, res ) => {
      }
 };
 
-// Solicitar restablecimiento de contraseña
-const requestPasswordReset = async (req, res) => {
-    try {
-        const { email } = req.body;
-        
-        // Verificar si el usuario existe
-        const user = await User.findOne({ email });
-        if (!user) {
-            // Por seguridad, no revelar si el email existe o no
-            return res.status(200).json({
-                success: true,
-                message: 'Si el email existe, se ha enviado un enlace de restablecimiento'
-            });
-        }
-        
-        // Generar token único
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        
-        // Calcular fecha de expiración (1 hora)
-        const resetExpires = new Date();
-        resetExpires.setHours(resetExpires.getHours() + 1);
-        
-        // Guardar token en el usuario
-        user.resetPasswordToken = resetToken;
-        user.resetPasswordExpires = resetExpires;
-        await user.save();
-        
-        // Aquí se enviaría un email con el enlace que contiene el token
-        // Por ahora, solo devolvemos el token para fines de prueba
-        // En producción, usarías un servicio como Nodemailer, SendGrid, etc.
-        
-        console.log(`Token de restablecimiento para ${email}: ${resetToken}`);
-        
-        return res.status(200).json({
-            success: true,
-            message: 'Si el email existe, se ha enviado un enlace de restablecimiento',
-            // En producción, NO enviar el token en la respuesta
-            resetToken: resetToken // Solo para pruebas
-        });
-    } catch (error) {
-        console.error('Error al solicitar restablecimiento:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error al procesar la solicitud',
-            error: error.message
-        });
-    }
-};
 
-// Confirmar restablecimiento y actualizar contraseña
-const resetPassword = async (req, res) => {
-    try {
-        const { token, newPassword } = req.body;
-        
-        // Buscar usuario con el token válido y no expirado
-        const user = await User.findOne({
-            resetPasswordToken: token,
-            resetPasswordExpires: { $gt: new Date() }
-        });
-        
-        if (!user) {
-            return res.status(400).json({
-                success: false,
-                message: 'Token inválido o expirado'
-            });
-        }
-        
-        // Actualizar contraseña
-        user.password = newPassword; // Se encriptará automáticamente por el middleware pre-save
-        
-        // Limpiar campos de restablecimiento
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
-        
-        await user.save();
-        
-        return res.status(200).json({
-            success: true,
-            message: 'Contraseña actualizada exitosamente'
-        });
-    } catch (error) {
-        console.error('Error al restablecer contraseña:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error al restablecer contraseña',
-            error: error.message
-        });
-    }
-};
 
 module.exports = {
      register,
@@ -404,8 +269,5 @@ module.exports = {
      getProfile,
      getAllUsers,
      updateUser,
-     changePassword,
-     deleteAccount,
-     requestPasswordReset,
-     resetPassword
+     deleteAccount
 };
