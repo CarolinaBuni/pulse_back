@@ -26,7 +26,7 @@ const register = async ( req, res ) => {
                username,
                email,
                password, // Se encriptará por el middleware en User.js
-               avatar    // URL del avatar seleccionado
+               avatar    
           } );
 
           await newUser.save();

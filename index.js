@@ -67,7 +67,7 @@ app.get( '/', ( req, res ) => {
      } );
 } );
 
-// Rutas API
+// Rutas de la  API
 app.use( "/api/users", userRouter );
 app.use( "/api/events", eventRouter );
 app.use( "/api/favorites", favoriteRouter );
