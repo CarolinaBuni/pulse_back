@@ -6,8 +6,10 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "generate-csv": "node src/utils/generateTicketmasterCSV.js",
-    "seed": "node src/utils/seedEvents.js"
+    "seed": "node src/utils/seedEvents.js",
+    "seed:users": "node src/utils/seedUsers.js",
+    "seed:events": "node src/utils/seedEvents.js",
+    "seed:all": "npm run seed:users && npm run seed:events"
   },
   "keywords": [],
   "author": "",
@@ -15,17 +17,15 @@
   "dependencies": {
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "cloudinary": "^2.6.0",
     "cors": "^2.8.5",
     "csv-parser": "^3.2.0",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.13.2",
-    "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0",
-    "passport-jwt": "^4.0.1",
-    "swagger-ui-express": "^5.0.1"
+         "mongoose": "^8.13.2",
+     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

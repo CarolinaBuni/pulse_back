@@ -82,16 +82,27 @@ const removeFavorite = async ( req, res ) => {
 const getUserFavorites = async ( req, res ) => {
      try {
           const userId = req.user.id;
-
-          // Buscar favoritos y poblar con datos del evento
+          // Buscar favoritos y poblar con TODOS los datos del evento
           const favorites = await Favorite.find( { user: userId } )
-               .populate( 'event' )
+               .populate('event') // Poblar con todos los campos del evento
                .sort( { createdAt: -1 } );
+
+          // Filtrar favoritos con eventos válidos y limpiar datos
+          const validFavorites = favorites.filter((fav) => {
+               if (fav.event && fav.event.name) {
+                    // Limpiar el campo genre si es "Undefined" o similar
+                    if (fav.event.genre === 'Undefined' || fav.event.genre === 'undefined' || fav.event.genre === 'null') {
+                         fav.event.genre = null;
+                    }
+                    return true;
+               }
+               return false;
+          });
 
           res.status( 200 ).json( {
                success: true,
-               count: favorites.length,
-               data: favorites
+               count: validFavorites.length,
+               data: validFavorites
           } );
      } catch ( error ) {
           console.error( 'Error al obtener favoritos:', error );
@@ -124,7 +135,6 @@ const checkFavorite = async ( req, res ) => {
           } );
      }
 };
-
 
 
 module.exports = {

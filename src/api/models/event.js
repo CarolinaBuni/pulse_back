@@ -6,7 +6,7 @@ const eventSchema = new Schema( {
      ticketmasterId: {
           type: String,
           sparse: true // Permite null/undefined mientras mantiene la unicidad
-      },
+     },
      name: {
           type: String,
           required: true
@@ -64,7 +64,7 @@ const eventSchema = new Schema( {
      },
      image: {
           type: String,
-          default: 'https://via.placeholder.com/300'
+          default: 'https://picsum.photos/300/200?random=1'
      },
      secondaryImage: {
           type: String
@@ -110,7 +110,7 @@ const eventSchema = new Schema( {
 
 // Índices para búsquedas eficientes
 eventSchema.index( { name: 'text', description: 'text' } );
-eventSchema.index( { description: 'text', 'venue.name': 'text', 'venue.city': 'text', genre: 'text', subgenre: 'text', tags: 'text'})
+eventSchema.index( { description: 'text', 'venue.name': 'text', 'venue.city': 'text', genre: 'text', subgenre: 'text', tags: 'text' } );
 eventSchema.index( { 'venue.city': 1 } );
 eventSchema.index( { startDate: 1 } );
 eventSchema.index( { featured: 1 } );

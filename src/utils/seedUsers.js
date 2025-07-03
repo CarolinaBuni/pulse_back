@@ -5,7 +5,7 @@ const csv = require( 'csv-parser' );
 const mongoose = require( 'mongoose' );
 const User = require( '../api/models/user' );
 const { connectDB } = require( '../config/db' );
-const bcrypt = require( 'bcrypt' );
+const { getRandomAvatar } = require('./avatars');
 
 async function seedUsers() {
      try {
@@ -13,24 +13,25 @@ async function seedUsers() {
           await connectDB();
           console.log( 'Conectado a MongoDB' );
 
-          // Array para almacenar usuarios
+          // Array para almacenar los usuarios del CSV
           const users = [];
 
           // Leer el archivo CSV
           console.log( 'Leyendo el archivo CSV de usuarios...' );
 
+          // Leer CSV de forma asíncrona
           await new Promise( ( resolve, reject ) => {
                fs.createReadStream( path.join( __dirname, '../../data/users.csv' ) )
                     .pipe( csv() )
                     .on( 'data', ( data ) => {
-                         // Transformar datos del CSV
+                         // Transformar los datos del CSV al formato del modelo
                          const user = {
                               username: data.username,
                               email: data.email,
-                              password: data.password,
-                              avatar: data.avatar || 'https://via.placeholder.com/150',
+                              password: data.password, // Se encriptará automáticamente por el middleware
                               role: data.role || 'user',
-                              preferences: data.preferences ? data.preferences.split( ',' ).map( p => p.trim() ) : []
+                              avatar: data.avatar || getRandomAvatar(),
+                              preferences: data.preferences ? data.preferences.split(',').map(p => p.trim()) : []
                          };
 
                          users.push( user );
@@ -44,24 +45,27 @@ async function seedUsers() {
                     } );
           } );
 
-          console.log( 'Insertando usuarios en la base de datos...' );
-          let insertedCount = 0;
+          // Limpiar colección
+          await User.deleteMany({});
+          console.log('Usuarios existentes eliminados');
 
-          for ( const userData of users ) {
-               const user = new User( userData );
+          // Crear usuarios del CSV
+          for (const userData of users) {
+               const user = new User(userData);
                await user.save();
-               insertedCount++;
+               console.log(`Usuario ${userData.username} creado`);
           }
-
-          console.log( `Se insertaron ${ insertedCount } usuarios en la base de datos` );
-          console.log( 'Seeding de usuarios completado' );
+          
+          console.log(`Seeding completado: ${users.length} usuarios creados`);
 
           await mongoose.disconnect();
 
      } catch ( error ) {
-          console.error( 'Error durante el seeding de usuarios:', error );
+          console.error( 'Error en seeding de usuarios:', error );
           process.exit( 1 );
      }
 }
 
 seedUsers();
+
+module.exports = { seedUsers };
