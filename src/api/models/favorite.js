@@ -17,7 +17,7 @@ const favoriteSchema = new mongoose.Schema( {
      }
 }, { timestamps: true } );
 
-// Índice compuesto para evitar duplicados (un usuario no puede marcar el mismo evento como favorito dos veces)
+// Índice para evitar duplicados (no se puede marcar el mismo evento como favorito dos veces)
 favoriteSchema.index( { user: 1, event: 1 }, { unique: true } );
 
 module.exports = mongoose.model( 'Favorite', favoriteSchema );

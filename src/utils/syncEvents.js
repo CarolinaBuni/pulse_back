@@ -69,7 +69,7 @@ const processAndSaveEvents = async (ticketmasterEvents) => {
                     lng: parseFloat(tmEvent._embedded?.venues?.[0]?.location?.longitude) || -3.7038
                 },
                 status: tmEvent.dates?.status?.code || 'onsale',
-                featured: false, // Los nuevos no son featured por defecto
+                featured: false, 
                 ageRestriction: tmEvent.ageRestrictions?.legalAgeEnforced ? 'Solo mayores de edad' : 'Todos los públicos',
                 promoter: tmEvent.promoter?.name || tmEvent._embedded?.attractions?.[0]?.name || '',
                 url: tmEvent.url || '',
@@ -136,7 +136,7 @@ const syncEvents = async () => {
         let hasMorePages = true;
 
         // Obtener eventos de múltiples páginas
-        while (hasMorePages && page < 2) { // Limitamos a 2 páginas 
+        while (hasMorePages && page < 2) { 
             const data = await fetchFromTicketmaster(page);
             
             if (!data || !data._embedded?.events) {

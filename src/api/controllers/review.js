@@ -167,7 +167,6 @@ const updateReview = async ( req, res ) => {
 };
 
 // Eliminar una reseña
-
 const deleteReview = async ( req, res ) => {
      try {
           const { id } = req.params;

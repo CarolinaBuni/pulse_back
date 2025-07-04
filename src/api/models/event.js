@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const eventSchema = new Schema( {
      ticketmasterId: {
           type: String,
-          sparse: true // Permite null/undefined mientras mantiene la unicidad
+          sparse: true 
      },
      name: {
           type: String,
@@ -108,7 +108,7 @@ const eventSchema = new Schema( {
      }
 }, { timestamps: true } );
 
-// Índices para búsquedas eficientes
+// Índices para mejorar búsquedas 
 eventSchema.index( { name: 'text', description: 'text' } );
 eventSchema.index( { description: 'text', 'venue.name': 'text', 'venue.city': 'text', genre: 'text', subgenre: 'text', tags: 'text' } );
 eventSchema.index( { 'venue.city': 1 } );

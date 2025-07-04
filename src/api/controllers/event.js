@@ -1,4 +1,5 @@
 const Event = require( '../models/event' );
+const Review = require( '../models/review' );
 
 // Obtener todos los eventos
 const getAllEvents = async ( req, res ) => {
@@ -7,9 +8,6 @@ const getAllEvents = async ( req, res ) => {
 
           // Por defecto, mostrar solo eventos futuros
           query.startDate = { $gte: new Date() };
-
-          // Por defecto, mostrar solo eventos de Madrid
-          // query['venue.city'] = "Madrid";
 
           // Filtros opcionales
           if ( req.query.category ) {
@@ -53,7 +51,7 @@ const getAllEvents = async ( req, res ) => {
 
           // Paginación
           const page = parseInt( req.query.page ) || 1;
-          const limit = parseInt( req.query.limit ) || 1000; // Aumentado a 1000 para mostrar todos los eventos
+          const limit = parseInt( req.query.limit ) || 1000; 
           const skip = ( page - 1 ) * limit;
 
           // Ejecutar consulta
@@ -83,7 +81,6 @@ const getAllEvents = async ( req, res ) => {
 };
 
 // Obtener un evento por ID
-// Modificación del método getEventById en src/api/controllers/event.js
 
 const getEventById = async ( req, res ) => {
      try {
@@ -105,7 +102,6 @@ const getEventById = async ( req, res ) => {
           }
 
           // Buscar las reseñas relacionadas
-          const Review = require( '../models/review' ); // Importar el modelo de Review
           const reviews = await Review.find( { event: event._id } )
                .populate( 'user', 'username avatar' )
                .sort( { date: -1 } );
@@ -221,7 +217,6 @@ const deleteEvent = async ( req, res ) => {
           } );
      }
 };
-
 
 
 // Obtener eventos por ciudad
@@ -404,7 +399,6 @@ const searchEvents = async ( req, res ) => {
           } );
      }
 };
-
 
 
 // Obtener eventos pasados

@@ -1,5 +1,5 @@
 // src/utils/avatars.js
-// Array de avatares predeterminados de Cloudinary
+// Array de avatares predeterminados
 const DEFAULT_AVATARS = [
   'https://res.cloudinary.com/dafjggs2p/image/upload/v1744369015/pulse/avatar_nsx2kr.png',
   'https://res.cloudinary.com/dafjggs2p/image/upload/v1744369014/pulse/asesino_d4wbmj.png',
@@ -13,7 +13,7 @@ const DEFAULT_AVATARS = [
   'https://res.cloudinary.com/dafjggs2p/image/upload/v1744368979/pulse/caperucita-roja_quczln.png'
 ];
 
-// Función para obtener un avatar aleatorio
+// Función para obtener un avatar aleatorio de DEFAULT_AVATARS
 const getRandomAvatar = () => {
   return DEFAULT_AVATARS[Math.floor(Math.random() * DEFAULT_AVATARS.length)];
 };

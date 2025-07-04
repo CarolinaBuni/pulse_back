@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://pulse-back-qjhc-8lwapkqun-powermbas-projects.vercel.app",
+      "url": "https://pulse-back-qjhc.vercel.app",
       "description": "Servidor de producción en Vercel"
     },
     {

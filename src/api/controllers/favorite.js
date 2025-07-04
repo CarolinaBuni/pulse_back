@@ -136,7 +136,6 @@ const checkFavorite = async ( req, res ) => {
      }
 };
 
-
 module.exports = {
      addFavorite,
      removeFavorite,
