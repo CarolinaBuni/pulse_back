@@ -1,11 +1,11 @@
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('../swagger.json');
 
-// Opciones de personalización de Swagger UI con tema oscuro espectacular
+// Opciones de personalización de Swagger UI 
 const options = {
   explorer: true,
   customCss: `
-    /* TEMA OSCURO */
+    /* TEMA OSCURO iNSPIRADO EN CODEPEN Y GITHUB */
     
     /* Estilos Generales */
     body {
@@ -23,14 +23,14 @@ const options = {
       box-shadow: 0 4px 20px rgba(255, 0, 110, 0.3);
     }
     
-    /* Ocultar completamente "swagger" en la barra superior */
+    /* Ocultar "swagger" en la barra superior */
     .swagger-ui .topbar .wrapper, 
     .swagger-ui .topbar a, 
     .swagger-ui .topbar img {
       display: none !important;
     }
 
-    /* Reemplazar con nuestro propio logo */
+    /* Reemplazar con el nombre de la API */
     .swagger-ui .topbar::before {
       content: "API PULSE";
       position: absolute;
@@ -73,7 +73,7 @@ const options = {
       text-align: center;
     }
     
-    /* Arreglar la sección Servers: hacerla oscura */
+    /* Hacer la sección servers oscura */
     .swagger-ui .servers {
       background-color: #0d0d17;
       padding: 15px;
@@ -125,7 +125,7 @@ const options = {
       color: #ff006e;
     }
     
-    /* Endpoints - Estilos Generales - Mejorado para más contraste */
+    /* Endpoints - Estilos Generales */
     .swagger-ui .opblock {
       margin: 0 0 15px;
       border: none;
@@ -448,8 +448,13 @@ const options = {
       const tagsOrder = ['Eventos', 'Usuarios', 'Reseñas', 'Favoritos'];
       return tagsOrder.indexOf(a) - tagsOrder.indexOf(b);
     },
-    operationsSorter: 'method', // Ordena por método HTTP: GET, POST, PUT, DELETE
-    docExpansion: 'list', // Muestra las secciones cerradas inicialmente
+    operationsSorter: function(a, b) {
+      const methodOrder = ['get', 'post', 'put', 'delete'];
+      const aIndex = methodOrder.indexOf(a.get('method').toLowerCase());
+      const bIndex = methodOrder.indexOf(b.get('method').toLowerCase());
+      return aIndex - bIndex;
+    },
+    docExpansion: 'list', // Secciones cerradas inicialmente
     defaultModelsExpandDepth: 0 // Oculta los modelos por defecto
   }
 };
