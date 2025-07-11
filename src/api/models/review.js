@@ -32,7 +32,7 @@ const reviewSchema = new mongoose.Schema( {
      }
 }, { timestamps: true } );
 
-// Índice para evitar duplicados (un usuario no puede hacer múltiples reseñas para un evento)
+// Índice para evitar duplicados 
 reviewSchema.index( { user: 1, event: 1 }, { unique: true } );
 
 module.exports = mongoose.model( 'Review', reviewSchema );

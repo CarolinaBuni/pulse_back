@@ -7,7 +7,10 @@ const getAllEvents = async ( req, res ) => {
           let query = {};
 
           // Por defecto, mostrar solo eventos futuros
-          query.startDate = { $gte: new Date() };
+          // query.startDate = { $gte: new Date() };
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); // 00:00:00.000 de hoy
+          query.startDate = { $gte: today };
 
           // Filtros opcionales
           if ( req.query.category ) {
@@ -272,7 +275,10 @@ const searchEvents = async ( req, res ) => {
           };
 
           // Por defecto, mostrar solo eventos futuros
-          query.startDate = { $gte: new Date() };
+          // query.startDate = { $gte: new Date() };
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); // 00:00:00.000 de hoy
+          query.startDate = { $gte: today };
 
           // Filtros opcionales adicionales
           const additionalFilters = {};

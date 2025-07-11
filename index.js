@@ -1,6 +1,6 @@
 require( "dotenv" ).config();
 const { connectDB } = require( "./src/config/db" );
-const { startAutoSync, runManualSync } = require( "./src/utils/scheduler" );
+const { startAutoSync, runManualSync, runManualClean } = require( "./src/utils/scheduler" );
 const cloudinary = require( "cloudinary" ).v2;
 const express = require( "express" );
 const cors = require( 'cors' );
@@ -64,7 +64,8 @@ app.get( '/', ( req, res ) => {
                events: '/api/events',
                favorites: '/api/favorites',
                reviews: '/api/reviews',
-               sync: '/api/sync (POST para sincronización manual)'
+               sync: '/api/sync (POST para sincronización manual)',
+               clean: '/api/clean (POST para limpieza de eventos antiguos)'
           }
      } );
 } );
@@ -94,6 +95,38 @@ app.post('/api/sync', async (req, res) => {
           }
      } catch (error) {
           console.error('💥 Error en endpoint de sincronización:', error.message);
+          res.status(500).json({
+               success: false,
+               message: 'Error interno del servidor',
+               error: error.message
+          });
+     }
+});
+
+// Ruta para limpieza manual de eventos antiguos
+app.post('/api/clean', async (req, res) => {
+     try {
+          console.log('🧹 Solicitud de limpieza manual recibida');
+          const result = await runManualClean();
+          
+          if (result.success) {
+               res.json({
+                    success: true,
+                    message: 'Limpieza completada exitosamente',
+                    data: {
+                         deletedCount: result.deletedCount,
+                         protectedCount: result.protectedCount
+                    }
+               });
+          } else {
+               res.status(500).json({
+                    success: false,
+                    message: 'Error en la limpieza',
+                    error: result.error
+               });
+          }
+     } catch (error) {
+          console.error('💥 Error en endpoint de limpieza:', error.message);
           res.status(500).json({
                success: false,
                message: 'Error interno del servidor',
