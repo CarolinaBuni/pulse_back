@@ -30,6 +30,13 @@ app.use(cors({
      allowedHeaders: ['Content-Type', 'Authorization']
  }));
 
+ // AÑADIR ESTE MIDDLEWARE DESPUÉS DEL CORS:
+app.use((req, res, next) => {
+     console.log('📱 [MOBILE DEBUG] Nueva request:', req.method, req.path);
+     console.log('📱 [MOBILE DEBUG] Headers:', req.headers);
+     next();
+ });
+
 app.use( express.json() );
 
 
