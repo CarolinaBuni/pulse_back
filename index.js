@@ -24,10 +24,13 @@ cloudinary.config( {
 
 // Habilitar CORS
 app.use(cors({
-     origin: '*',
-     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-     credentials: true,
-     allowedHeaders: ['Content-Type', 'Authorization']
+     origin: [
+          'https://react-final-hhrldkw3j-powermbas-projects.vercel.app', // tu frontend de Vercel
+          'http://localhost:5173' // para desarrollo local (opcional)
+      ],
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      credentials: true,
+      allowedHeaders: ['Content-Type', 'Authorization']
  }));
 
  // AÑADIR ESTE MIDDLEWARE DESPUÉS DEL CORS:
