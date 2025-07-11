@@ -26,10 +26,10 @@ cloudinary.config( {
 app.use(cors({
      origin: [
           'https://react-final-hhrldkw3j-powermbas-projects.vercel.app',
-          'http://localhost:5173',
-          'https://react-final.vercel.app' // URL alternativa por si cambia el despliegue
+          'https://react-final-lemon.vercel.app',
+          'http://localhost:5173'
      ],
-     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Añadido OPTIONS para preflight
+     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
      credentials: true,
      allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
      exposedHeaders: ['Content-Range', 'X-Content-Range']
@@ -37,9 +37,32 @@ app.use(cors({
 
 // Middleware para debugging de CORS
 app.use((req, res, next) => {
+     const origin = req.headers.origin;
+     if (origin) {
+          // Asegurarse de que el origen está en la lista de permitidos
+          const allowedOrigins = [
+               'https://react-final-hhrldkw3j-powermbas-projects.vercel.app',
+               'https://react-final-lemon.vercel.app',
+               'http://localhost:5173'
+          ];
+          
+          if (allowedOrigins.includes(origin)) {
+               res.header('Access-Control-Allow-Origin', origin);
+          }
+     }
+     
      res.header('Access-Control-Allow-Credentials', 'true');
+     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept');
+     
      console.log('📱 [CORS DEBUG] Origin:', req.headers.origin);
      console.log('📱 [CORS DEBUG] Method:', req.method);
+     
+     // Handle preflight
+     if (req.method === 'OPTIONS') {
+          return res.status(200).end();
+     }
+     
      next();
 });
 
