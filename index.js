@@ -25,13 +25,23 @@ cloudinary.config( {
 // Habilitar CORS
 app.use(cors({
      origin: [
-          'https://react-final-hhrldkw3j-powermbas-projects.vercel.app', // tu frontend de Vercel
-          'http://localhost:5173' // para desarrollo local (opcional)
-      ],
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      credentials: true,
-      allowedHeaders: ['Content-Type', 'Authorization']
- }));
+          'https://react-final-hhrldkw3j-powermbas-projects.vercel.app',
+          'http://localhost:5173',
+          'https://react-final.vercel.app' // URL alternativa por si cambia el despliegue
+     ],
+     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Añadido OPTIONS para preflight
+     credentials: true,
+     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+     exposedHeaders: ['Content-Range', 'X-Content-Range']
+}));
+
+// Middleware para debugging de CORS
+app.use((req, res, next) => {
+     res.header('Access-Control-Allow-Credentials', 'true');
+     console.log('📱 [CORS DEBUG] Origin:', req.headers.origin);
+     console.log('📱 [CORS DEBUG] Method:', req.method);
+     next();
+});
 
  // AÑADIR ESTE MIDDLEWARE DESPUÉS DEL CORS:
 app.use((req, res, next) => {
