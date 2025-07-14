@@ -4,25 +4,12 @@ const Review = require( '../models/review' );
 // Obtener todos los eventos
 const getAllEvents = async ( req, res ) => {
      try {
-          // 🔥 LOGS PARA DEBUGGING MÓVILES
-          console.log('📱 [MOBILE DEBUG] ===== NUEVA REQUEST A getAllEvents =====');
-          console.log('📱 User-Agent:', req.headers['user-agent']);
-          console.log('📱 Origin:', req.headers.origin);
-          console.log('📱 Referer:', req.headers.referer);
-          console.log('📱 Query params:', req.query);
-          console.log('📱 Method:', req.method);
-          console.log('📱 URL:', req.url);
-          
           let query = {};
 
           // Por defecto, mostrar solo eventos futuros
-          // query.startDate = { $gte: new Date() };
           const today = new Date();
           today.setHours(0, 0, 0, 0); // 00:00:00.000 de hoy
           query.startDate = { $gte: today };
-
-          console.log('📱 [MOBILE DEBUG] Today date:', today);
-          console.log('📱 [MOBILE DEBUG] Query inicial:', query);
 
           // Filtros opcionales
           if ( req.query.category ) {
@@ -64,14 +51,10 @@ const getAllEvents = async ( req, res ) => {
                query.featured = true;
           }
 
-          console.log('📱 [MOBILE DEBUG] Query final:', JSON.stringify(query, null, 2));
-
           // Paginación
           const page = parseInt( req.query.page ) || 1;
           const limit = parseInt( req.query.limit ) || 1000; 
           const skip = ( page - 1 ) * limit;
-
-          console.log('📱 [MOBILE DEBUG] Paginación - Page:', page, 'Limit:', limit, 'Skip:', skip);
 
           // Ejecutar consulta
           const events = await Event.find( query )
@@ -79,14 +62,8 @@ const getAllEvents = async ( req, res ) => {
                .skip( skip )
                .limit( limit );
 
-          console.log('📱 [MOBILE DEBUG] Eventos encontrados:', events.length);
-          console.log('📱 [MOBILE DEBUG] Primer evento:', events[0]?.name || 'No hay eventos');
-          console.log('📱 [MOBILE DEBUG] Primer evento fecha:', events[0]?.startDate || 'No hay eventos');
-
           // Contar total para paginación
           const total = await Event.countDocuments( query );
-
-          console.log('📱 [MOBILE DEBUG] Total en BD:', total);
 
           const response = {
                success: true,
@@ -96,13 +73,9 @@ const getAllEvents = async ( req, res ) => {
                data: events
           };
 
-          console.log('📱 [MOBILE DEBUG] Response count:', response.count);
-          console.log('📱 [MOBILE DEBUG] ===== FIN REQUEST =====');
-
           return res.status( 200 ).json( response );
      } catch ( error ) {
-          console.error( '📱 [MOBILE DEBUG] ERROR:', error );
-          console.error( '📱 [MOBILE DEBUG] ERROR Stack:', error.stack );
+          console.error( 'Error al obtener eventos:', error );
           return res.status( 500 ).json( {
                success: false,
                message: 'Error al obtener eventos',

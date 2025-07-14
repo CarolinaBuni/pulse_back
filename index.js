@@ -35,44 +35,6 @@ app.use(cors({
      exposedHeaders: ['Content-Range', 'X-Content-Range']
 }));
 
-// Middleware para debugging de CORS
-app.use((req, res, next) => {
-     const origin = req.headers.origin;
-     if (origin) {
-          // Asegurarse de que el origen está en la lista de permitidos
-          const allowedOrigins = [
-               'https://react-final-hhrldkw3j-powermbas-projects.vercel.app',
-               'https://react-final-lemon.vercel.app',
-               'http://localhost:5173'
-          ];
-          
-          if (allowedOrigins.includes(origin)) {
-               res.header('Access-Control-Allow-Origin', origin);
-          }
-     }
-     
-     res.header('Access-Control-Allow-Credentials', 'true');
-     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept');
-     
-     console.log('📱 [CORS DEBUG] Origin:', req.headers.origin);
-     console.log('📱 [CORS DEBUG] Method:', req.method);
-     
-     // Handle preflight
-     if (req.method === 'OPTIONS') {
-          return res.status(200).end();
-     }
-     
-     next();
-});
-
- // AÑADIR ESTE MIDDLEWARE DESPUÉS DEL CORS:
-app.use((req, res, next) => {
-     console.log('📱 [MOBILE DEBUG] Nueva request:', req.method, req.path);
-     console.log('📱 [MOBILE DEBUG] Headers:', req.headers);
-     next();
- });
-
 app.use( express.json() );
 
 
