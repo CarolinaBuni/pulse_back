@@ -191,12 +191,25 @@ app.use( ( req, res ) => {
 } );
 
 
+// app.listen( 3000, () => {
+//      console.log( `Server is running on: http://localhost:3000` );
+//      console.log( `API Documentation: http://localhost:3000/api-docs` );
+     
+//      // Iniciar sincronización automática
+//      startAutoSync();
+//      console.log( `🤖 Sincronización automática activada (cada 6 horas)` );
+// } );
+
 app.listen( 3000, () => {
      console.log( `Server is running on: http://localhost:3000` );
      console.log( `API Documentation: http://localhost:3000/api-docs` );
      
-     // Iniciar sincronización automática
-     startAutoSync();
-     console.log( `🤖 Sincronización automática activada (cada 6 horas)` );
+     // Solo ejecutar sync automático en desarrollo local
+     if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+          startAutoSync();
+          console.log( `🤖 Sincronización automática activada (cada 6 horas) - DESARROLLO` );
+     } else {
+          console.log( `🚀 Producción: Sync automático configurado via Vercel Cron Jobs` );
+     }
 } );
 
