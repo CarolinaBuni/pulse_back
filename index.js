@@ -169,7 +169,7 @@ app.listen( 3000, () => {
      // Solo ejecutar sync automático en desarrollo local
      if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
           startAutoSync();
-          console.log( `🤖 Sincronización automática activada (cada 6 horas) - DESARROLLO` );
+          console.log( `🤖 Sincronización automática activada (cada 24 horas) - DESARROLLO` );
      } else {
           console.log( `🚀 Producción: Sync automático configurado via Vercel Cron Jobs` );
      }

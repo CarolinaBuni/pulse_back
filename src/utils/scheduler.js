@@ -42,7 +42,7 @@ const cleanOldEvents = async () => {
 // Función para ejecutar sincronización automática
 const startAutoSync = () => {
     console.log('🤖 Iniciando sincronización automática...');
-    console.log('📅 Se ejecutará cada 6 horas');
+    console.log('📅 Se ejecutará cada 24 horas');
     
     // Ejecutar inmediatamente al iniciar
     setTimeout(async () => {
