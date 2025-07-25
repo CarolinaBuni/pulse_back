@@ -8,7 +8,7 @@ const getAllEvents = async ( req, res ) => {
 
           // Por defecto, mostrar solo eventos futuros
           const today = new Date();
-          today.setHours(0, 0, 0, 0); // 00:00:00.000 de hoy
+          today.setHours( 0, 0, 0, 0 ); // 00:00:00.000 de hoy
           query.startDate = { $gte: today };
 
           // Filtros opcionales
@@ -53,7 +53,7 @@ const getAllEvents = async ( req, res ) => {
 
           // Paginación
           const page = parseInt( req.query.page ) || 1;
-          const limit = parseInt( req.query.limit ) || 1000; 
+          const limit = parseInt( req.query.limit ) || 1000;
           const skip = ( page - 1 ) * limit;
 
           // Ejecutar consulta
@@ -278,7 +278,7 @@ const searchEvents = async ( req, res ) => {
           // Por defecto, mostrar solo eventos futuros
           // query.startDate = { $gte: new Date() };
           const today = new Date();
-          today.setHours(0, 0, 0, 0); // 00:00:00.000 de hoy
+          today.setHours( 0, 0, 0, 0 ); // 00:00:00.000 de hoy
           query.startDate = { $gte: today };
 
           // Filtros opcionales adicionales
@@ -435,10 +435,38 @@ const getPastEvents = async ( req, res ) => {
           const skip = ( page - 1 ) * limit;
 
           // Ejecutar consulta - ordenar por fecha descendente (más recientes primero)
-          const events = await Event.find( query )
-               .sort( { startDate: -1 } )
-               .skip( skip )
-               .limit( limit );
+          // const events = await Event.find( query )
+          //      .sort( { startDate: -1 } )
+          //      .skip( skip )
+          //      .limit( limit );
+
+          // DESPUÉS (REEMPLAZAR CON):
+          const events = await Event.aggregate( [
+               { $match: query },
+               {
+                    $lookup: {
+                         from: 'reviews',
+                         localField: '_id',
+                         foreignField: 'event',
+                         as: 'reviews'
+                    }
+               },
+               {
+                    $addFields: {
+                         reviewCount: { $size: '$reviews' },
+                         averageRating: {
+                              $cond: {
+                                   if: { $gt: [ { $size: '$reviews' }, 0 ] },
+                                   then: { $avg: '$reviews.rating' },
+                                   else: 0
+                              }
+                         }
+                    }
+               },
+               { $sort: { startDate: -1 } },
+               { $skip: skip },
+               { $limit: limit }
+          ] );
 
           // Contar total para paginación
           const total = await Event.countDocuments( query );
