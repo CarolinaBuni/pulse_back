@@ -13,7 +13,7 @@ const fetchFromTicketmaster = async (page = 0) => {
         const response = await axios.get(BASE_URL, {
             params: {
                 apikey: TICKETMASTER_API_KEY,
-                countryCode: 'ES',
+                // countryCode: 'ES',
                 size: 50,
                 page: page,
                 sort: 'date,asc'

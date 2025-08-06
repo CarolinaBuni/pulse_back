@@ -504,12 +504,12 @@
         "security": [{"bearerAuth": []}],
         "requestBody": {
           "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
                 "required": ["eventId"],
-                "properties": {
+                  "properties": {
                   "eventId": {
                     "type": "string",
                     "description": "ID del evento"
@@ -584,12 +584,12 @@
         "security": [{"bearerAuth": []}],
         "requestBody": {
           "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
                 "required": ["eventId", "rating", "comment"],
-                "properties": {
+                  "properties": {
                   "eventId": {
                     "type": "string",
                     "description": "ID del evento"
@@ -603,11 +603,11 @@
                   "comment": {
                     "type": "string",
                     "description": "Texto de la reseña"
+                    }
                   }
                 }
               }
             }
-          }
         },
         "responses": {
           "201": {
