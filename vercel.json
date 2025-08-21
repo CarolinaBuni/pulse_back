@@ -12,6 +12,11 @@
       "dest": "index.js"
     }
   ],
+  "functions": {
+    "index.js": {
+      "maxDuration": 30
+    }
+  },
   "crons": [
   {
     "path": "/api/sync",
