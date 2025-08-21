@@ -162,6 +162,7 @@ app.use( ( req, res ) => {
 //      console.log( `🤖 Sincronización automática activada (cada 6 horas)` );
 // } );
 
+
 app.listen( 3000, () => {
      console.log( `Server is running on: http://localhost:3000` );
      console.log( `API Documentation: http://localhost:3000/api-docs` );

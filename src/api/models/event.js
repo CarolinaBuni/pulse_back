@@ -84,10 +84,7 @@ const eventSchema = new Schema( {
           enum: [ 'onsale', 'offsale', 'cancelled', 'postponed', 'rescheduled' ],
           default: 'onsale'
      },
-     featured: {
-          type: Boolean,
-          default: false
-     },
+     
      ageRestriction: {
           type: String,
           default: 'Todos los públicos'

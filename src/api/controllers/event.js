@@ -6,9 +6,9 @@ const getAllEvents = async ( req, res ) => {
      try {
           let query = {};
 
-          // Por defecto, mostrar solo eventos futuros
+          // Mostrar solo eventos futuros
           const today = new Date();
-          today.setHours( 0, 0, 0, 0 ); // 00:00:00.000 de hoy
+          today.setHours( 0, 0, 0, 0 ); 
           query.startDate = { $gte: today };
 
           // Filtros opcionales
@@ -45,10 +45,6 @@ const getAllEvents = async ( req, res ) => {
                     // Solo filtro de endDate
                     query.startDate = { $lte: endDate };
                }
-          }
-
-          if ( req.query.featured === 'true' ) {
-               query.featured = true;
           }
 
           // Paginación
@@ -248,172 +244,236 @@ const getEventsByCity = async ( req, res ) => {
 };
 
 // Buscar eventos por texto
-const searchEvents = async ( req, res ) => {
-     try {
-          const { q } = req.query; // q es el término de búsqueda
+// const searchEvents = async ( req, res ) => {
+//      try {
+//           const { q } = req.query; 
 
-          if ( !q ) {
-               return res.status( 400 ).json( {
-                    success: false,
-                    message: 'Se requiere un término de búsqueda'
-               } );
-          }
+//           if ( !q ) {
+//                return res.status( 400 ).json( {
+//                     success: false,
+//                     message: 'Se requiere un término de búsqueda'
+//                } );
+//           }
 
-          // Escapar caracteres especiales de regex y crear patrón de búsqueda flexible
-          const escapedQuery = q.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
-          const searchRegex = new RegExp( escapedQuery, 'i' ); // 'i' para case-insensitive
+//           // Escapar caracteres especiales de regex y crear patrón de búsqueda flexible
+//           const escapedQuery = q.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
+//           const searchRegex = new RegExp( escapedQuery, 'i' ); 
 
-          // Construir la consulta base con búsqueda flexible en múltiples campos
-          let query = {
-               $or: [
-                    { name: { $regex: searchRegex } },
-                    { description: { $regex: searchRegex } },
-                    { genre: { $regex: searchRegex } },
-                    { 'venue.name': { $regex: searchRegex } },
-                    { 'venue.city': { $regex: searchRegex } },
-                    { 'venue.address': { $regex: searchRegex } }
-               ]
-          };
+//           // Construir la consulta base con búsqueda flexible en múltiples campos
+//           let query = {
+//                $or: [
+//                     { name: { $regex: searchRegex } },
+//                     { description: { $regex: searchRegex } },
+//                     { genre: { $regex: searchRegex } },
+//                     { 'venue.name': { $regex: searchRegex } },
+//                     { 'venue.city': { $regex: searchRegex } },
+//                     { 'venue.address': { $regex: searchRegex } }
+//                ]
+//           };
 
-          // Por defecto, mostrar solo eventos futuros
-          // query.startDate = { $gte: new Date() };
-          const today = new Date();
-          today.setHours( 0, 0, 0, 0 ); // 00:00:00.000 de hoy
-          query.startDate = { $gte: today };
+//           const today = new Date();
+//           today.setHours( 0, 0, 0, 0 ); 
+//           query.startDate = { $gte: today };
 
-          // Filtros opcionales adicionales
-          const additionalFilters = {};
+//           // Filtros opcionales adicionales
+//           const additionalFilters = {};
 
-          if ( req.query.category ) {
-               additionalFilters.category = req.query.category;
-          }
+//           if ( req.query.category ) {
+//                additionalFilters.category = req.query.category;
+//           }
 
-          if ( req.query.genre ) {
-               additionalFilters.genre = req.query.genre;
-          }
+//           if ( req.query.genre ) {
+//                additionalFilters.genre = req.query.genre;
+//           }
 
-          // Si se especifica una ciudad específica en filtros
-          if ( req.query.city ) {
-               additionalFilters[ 'venue.city' ] = req.query.city;
-          }
+//           // Si se especifica una ciudad específica en filtros
+//           if ( req.query.city ) {
+//                additionalFilters[ 'venue.city' ] = req.query.city;
+//           }
 
-          // Si se especifica una fecha de inicio diferente
-          if ( req.query.startDate ) {
-               additionalFilters.startDate = { $gte: new Date( req.query.startDate ) };
-          }
+//           // Si se especifica una fecha de inicio diferente
+//           if ( req.query.startDate ) {
+//                additionalFilters.startDate = { $gte: new Date( req.query.startDate ) };
+//           }
 
-          // Si se especifica una fecha de fin
-          if ( req.query.endDate ) {
-               const endDate = new Date( req.query.endDate );
-               endDate.setHours( 23, 59, 59, 999 ); // Incluir todo el día
+//           // Si se especifica una fecha de fin
+//           if ( req.query.endDate ) {
+//                const endDate = new Date( req.query.endDate );
+//                endDate.setHours( 23, 59, 59, 999 ); // Incluir todo el día
 
-               if ( additionalFilters.startDate ) {
-                    // Si ya hay filtro de startDate, crear rango
-                    additionalFilters.startDate = {
-                         $gte: additionalFilters.startDate.$gte,
-                         $lte: endDate
-                    };
-               } else {
-                    // Solo filtro de endDate
-                    additionalFilters.startDate = { $lte: endDate };
-               }
-          }
+//                if ( additionalFilters.startDate ) {
+//                     // Si ya hay filtro de startDate, crear rango
+//                     additionalFilters.startDate = {
+//                          $gte: additionalFilters.startDate.$gte,
+//                          $lte: endDate
+//                     };
+//                } else {
+//                     // Solo filtro de endDate
+//                     additionalFilters.startDate = { $lte: endDate };
+//                }
+//           }
 
-          if ( req.query.featured === 'true' ) {
-               additionalFilters.featured = true;
-          }
+//           // Filtros de precio
+//           if ( req.query.minPrice ) {
+//                additionalFilters[ 'price.min' ] = { $gte: parseFloat( req.query.minPrice ) };
+//           }
+//           if ( req.query.maxPrice ) {
+//                additionalFilters[ 'price.max' ] = { $lte: parseFloat( req.query.maxPrice ) };
+//           }
 
-          // Filtros de precio
-          if ( req.query.minPrice ) {
-               additionalFilters[ 'price.min' ] = { $gte: parseFloat( req.query.minPrice ) };
-          }
-          if ( req.query.maxPrice ) {
-               additionalFilters[ 'price.max' ] = { $lte: parseFloat( req.query.maxPrice ) };
-          }
+//           // Combinar la búsqueda de texto con filtros adicionales
+//           if ( Object.keys( additionalFilters ).length > 0 ) {
+//                query = { $and: [ query, additionalFilters ] };
+//           }
 
-          // Combinar la búsqueda de texto con filtros adicionales
-          if ( Object.keys( additionalFilters ).length > 0 ) {
-               query = { $and: [ query, additionalFilters ] };
-          }
+//           // Buscar eventos
+//           const events = await Event.find( query )
+//                .sort( {
+//                     // Priorizar eventos que coincidan en el nombre
+//                     name: 1,
+//                     startDate: 1
+//                } )
+//                .limit( 1000 ); // Aumentamos el límite para búsquedas
 
-          // Buscar eventos
-          const events = await Event.find( query )
-               .sort( {
-                    // Priorizar eventos que coincidan en el nombre
-                    name: 1,
-                    startDate: 1
-               } )
-               .limit( 1000 ); // Aumentamos el límite para búsquedas
+//           // Calcular relevancia simple basada en dónde se encuentra la coincidencia
+//           const eventsWithScore = events.map( event => {
+//                let score = 0;
+//                const queryLower = q.toLowerCase();
+//                const eventObj = event.toObject();
 
-          // Calcular relevancia simple basada en dónde se encuentra la coincidencia
-          const eventsWithScore = events.map( event => {
-               let score = 0;
-               const queryLower = q.toLowerCase();
-               const eventObj = event.toObject();
+//                // Mayor puntuación si coincide en el nombre
+//                if ( event.name && event.name.toLowerCase().includes( queryLower ) ) {
+//                     score += 10;
+//                     // Bonus si coincide al inicio del nombre
+//                     if ( event.name.toLowerCase().startsWith( queryLower ) ) {
+//                          score += 5;
+//                     }
+//                }
 
-               // Mayor puntuación si coincide en el nombre
-               if ( event.name && event.name.toLowerCase().includes( queryLower ) ) {
-                    score += 10;
-                    // Bonus si coincide al inicio del nombre
-                    if ( event.name.toLowerCase().startsWith( queryLower ) ) {
-                         score += 5;
-                    }
-               }
+//                // Puntuación media si coincide en género
+//                if ( event.genre && event.genre.toLowerCase().includes( queryLower ) ) {
+//                     score += 5;
+//                }
 
-               // Puntuación media si coincide en género
-               if ( event.genre && event.genre.toLowerCase().includes( queryLower ) ) {
-                    score += 5;
-               }
+//                // Puntuación baja si coincide en otros campos
+//                if ( event.description && event.description.toLowerCase().includes( queryLower ) ) {
+//                     score += 2;
+//                }
 
-               // Puntuación baja si coincide en otros campos
-               if ( event.description && event.description.toLowerCase().includes( queryLower ) ) {
-                    score += 2;
-               }
+//                if ( event.venue?.name && event.venue.name.toLowerCase().includes( queryLower ) ) {
+//                     score += 3;
+//                }
 
-               if ( event.venue?.name && event.venue.name.toLowerCase().includes( queryLower ) ) {
-                    score += 3;
-               }
+//                if ( event.venue?.city && event.venue.city.toLowerCase().includes( queryLower ) ) {
+//                     score += 3;
+//                }
 
-               if ( event.venue?.city && event.venue.city.toLowerCase().includes( queryLower ) ) {
-                    score += 3;
-               }
+//                eventObj.searchScore = score;
+//                return eventObj;
+//           } );
 
-               eventObj.searchScore = score;
-               return eventObj;
-          } );
+//           // Ordenar por puntuación de relevancia
+//           eventsWithScore.sort( ( a, b ) => b.searchScore - a.searchScore );
 
-          // Ordenar por puntuación de relevancia
-          eventsWithScore.sort( ( a, b ) => b.searchScore - a.searchScore );
+//           // Remover el campo de puntuación antes de enviar
+//           const finalEvents = eventsWithScore.map( event => {
+//                delete event.searchScore;
+//                return event;
+//           } );
 
-          // Remover el campo de puntuación antes de enviar
-          const finalEvents = eventsWithScore.map( event => {
-               delete event.searchScore;
-               return event;
-          } );
+//           return res.status( 200 ).json( {
+//                success: true,
+//                count: finalEvents.length,
+//                data: finalEvents,
+//                searchTerm: q
+//           } );
+//      } catch ( error ) {
+//           console.error( 'Error en búsqueda de eventos:', error );
+//           return res.status( 500 ).json( {
+//                success: false,
+//                message: 'Error al buscar eventos',
+//                error: error.message
+//           } );
+//      }
+// };
 
-          return res.status( 200 ).json( {
-               success: true,
-               count: finalEvents.length,
-               data: finalEvents,
-               searchTerm: q
-          } );
-     } catch ( error ) {
-          console.error( 'Error en búsqueda de eventos:', error );
-          return res.status( 500 ).json( {
-               success: false,
-               message: 'Error al buscar eventos',
-               error: error.message
-          } );
-     }
+const searchEvents = async (req, res) => {
+	try {
+		const { q } = req.query;
+
+		if (!q) {
+			return res.status(400).json({
+				success: false,
+				message: 'Se requiere un término de búsqueda'
+			});
+		}
+
+		// Regex seguro (case-insensitive) para el nombre
+		const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		const searchRegex = new RegExp(escapedQuery, 'i');
+
+		// Buscar SOLO por nombre
+		const nameFilter = { name: { $regex: searchRegex } };
+
+		// Fechas: por defecto eventos futuros, pero permite rango si llega
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+
+		let startDateFilter = { $gte: today };
+		if (req.query.startDate && req.query.endDate) {
+			const endDate = new Date(req.query.endDate);
+			endDate.setHours(23, 59, 59, 999);
+			startDateFilter = {
+				$gte: new Date(req.query.startDate),
+				$lte: endDate
+			};
+		} else if (req.query.startDate) {
+			startDateFilter = { $gte: new Date(req.query.startDate) };
+		} else if (req.query.endDate) {
+			const endDate = new Date(req.query.endDate);
+			endDate.setHours(23, 59, 59, 999);
+			startDateFilter = { $lte: endDate };
+		}
+
+		// Filtros combinables (AND)
+		const filters = {};
+		if (req.query.category) filters.category = req.query.category;
+		if (req.query.genre) filters.genre = req.query.genre;
+		if (req.query.city) filters['venue.city'] = req.query.city;
+		if (req.query.minPrice) filters['price.min'] = { $gte: parseFloat(req.query.minPrice) };
+		if (req.query.maxPrice) filters['price.max'] = { $lte: parseFloat(req.query.maxPrice) };
+
+		// Query final
+		const query = {
+			...nameFilter,
+			...filters,
+			startDate: startDateFilter
+		};
+
+		const events = await Event.find(query)
+			.sort({ startDate: 1, name: 1 })
+			.limit(1000);
+
+		return res.status(200).json({
+			success: true,
+			count: events.length,
+			data: events,
+			searchTerm: q
+		});
+	} catch (error) {
+		console.error('Error en búsqueda de eventos:', error);
+		return res.status(500).json({
+			success: false,
+			message: 'Error al buscar eventos',
+			error: error.message
+		});
+	}
 };
-
-
 // Obtener eventos pasados
 const getPastEvents = async ( req, res ) => {
      try {
           let query = {};
 
-          // Solo eventos pasados
           query.startDate = { $lt: new Date() };
 
           // Filtros opcionales
@@ -434,13 +494,7 @@ const getPastEvents = async ( req, res ) => {
           const limit = parseInt( req.query.limit ) || 20;
           const skip = ( page - 1 ) * limit;
 
-          // Ejecutar consulta - ordenar por fecha descendente (más recientes primero)
-          // const events = await Event.find( query )
-          //      .sort( { startDate: -1 } )
-          //      .skip( skip )
-          //      .limit( limit );
 
-          // DESPUÉS (REEMPLAZAR CON):
           const events = await Event.aggregate( [
                { $match: query },
                {
@@ -468,7 +522,7 @@ const getPastEvents = async ( req, res ) => {
                { $limit: limit }
           ] );
 
-          // Contar total para paginación
+          // Total para paginación
           const total = await Event.countDocuments( query );
 
           return res.status( 200 ).json( {

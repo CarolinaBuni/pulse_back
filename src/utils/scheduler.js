@@ -8,8 +8,8 @@ const cleanOldEvents = async () => {
     
     try {
         // Definir "evento viejo" (más de 2 años)
-        const twoYearsAgo = new Date();
-        twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+        const sixMonthsAgo = new Date();
+sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
         
         // Obtener eventos que tienen reseñas (estos se conservan)
         const eventsWithReviews = await Review.distinct('event');
@@ -17,7 +17,7 @@ const cleanOldEvents = async () => {
         
         // Borrar eventos antiguos SIN reseñas
         const result = await Event.deleteMany({ 
-            startDate: { $lt: twoYearsAgo },
+            startDate: { $lt: sixMonthsAgo },
             _id: { $nin: eventsWithReviews }
         });
         
