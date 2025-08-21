@@ -22,7 +22,7 @@ cloudinary.config( {
      api_secret: process.env.API_SECRET,
 } );
 
-// Habilitar CORS
+// CORS
 app.use(cors({
      origin: [
           'https://react-final-hhrldkw3j-powermbas-projects.vercel.app',
