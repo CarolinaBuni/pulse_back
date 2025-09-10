@@ -82,9 +82,8 @@ const removeFavorite = async ( req, res ) => {
 const getUserFavorites = async ( req, res ) => {
      try {
           const userId = req.user.id;
-          // Buscar favoritos y poblar con TODOS los datos del evento
           const favorites = await Favorite.find( { user: userId } )
-               .populate('event') // Poblar con todos los campos del evento
+               .populate('event') 
                .sort( { createdAt: -1 } );
 
           // Filtrar favoritos con eventos válidos y limpiar datos

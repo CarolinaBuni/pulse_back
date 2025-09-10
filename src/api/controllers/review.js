@@ -107,7 +107,7 @@ const getUserReviews = async ( req, res ) => {
      try {
           const userId = req.user.id;
 
-          // Buscar reseñas del usuario y poblar con datos del evento
+          // Buscar reseñas del usuario 
           const reviews = await Review.find( { user: userId } )
                .populate( 'event' )
                .sort( { date: -1 } );
@@ -134,7 +134,7 @@ const updateReview = async ( req, res ) => {
           const { rating, comment } = req.body;
           const userId = req.user.id;
 
-          // Buscar la reseña asegurándose que pertenece al usuario
+          // Buscar la reseña que pertenece al usuario
           const review = await Review.findOne( { _id: id, user: userId } );
 
           if ( !review ) {
@@ -172,7 +172,7 @@ const deleteReview = async ( req, res ) => {
           const { id } = req.params;
           const userId = req.user.id;
 
-          // Buscar la reseña asegurándose que pertenece al usuario
+          // Buscar la reseña que es del usuario
           const review = await Review.findOne( { _id: id, user: userId } );
 
           if ( !review ) {
@@ -182,7 +182,6 @@ const deleteReview = async ( req, res ) => {
                } );
           }
 
-          // Usar deleteOne en lugar de remove
           await Review.deleteOne( { _id: id } );
 
           res.status( 200 ).json( {

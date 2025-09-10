@@ -2,7 +2,7 @@ const User = require( '../models/user' );
 const bcrypt = require( 'bcrypt' );
 const jwt = require( 'jsonwebtoken' );
 
-// Generar token JWT simple
+// Generar token JWT 
 const generateAccessToken = ( user ) => {
      return jwt.sign(
           { id: user._id, role: user.role },
@@ -28,12 +28,12 @@ const register = async ( req, res ) => {
                } );
           }
 
-          // Crear nuevo usuario (pide avatar pero que pasa si no sube ninguno)
+          // Crear nuevo usuario 
           const newUser = new User( {
                username,
                email,
-               password, // Se encriptará por el middleware en User.js
-               avatar    // URL del avatar seleccionado
+               password, 
+               avatar    
           } );
 
           await newUser.save();
@@ -118,7 +118,7 @@ const login = async ( req, res ) => {
 // Obtener perfil de usuario (requiere autenticación)
 const getProfile = async ( req, res ) => {
      try {
-          // El middleware de autenticación habrá añadido req.user
+
           const user = await User.findById( req.user.id ).select( '-password' );
 
           if ( !user ) {

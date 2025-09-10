@@ -153,16 +153,6 @@ app.use( ( req, res ) => {
 } );
 
 
-// app.listen( 3000, () => {
-//      console.log( `Server is running on: http://localhost:3000` );
-//      console.log( `API Documentation: http://localhost:3000/api-docs` );
-     
-//      // Iniciar sincronización automática
-//      startAutoSync();
-//      console.log( `🤖 Sincronización automática activada (cada 6 horas)` );
-// } );
-
-
 app.listen( 3000, () => {
      console.log( `Server is running on: http://localhost:3000` );
      console.log( `API Documentation: http://localhost:3000/api-docs` );

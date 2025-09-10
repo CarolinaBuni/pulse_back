@@ -444,7 +444,7 @@ const options = {
   `,
   swaggerOptions: {
     tagsSorter: function(a, b) {
-      // Orden personalizado de recursos
+      // Orden  de recursos
       const tagsOrder = ['Eventos', 'Usuarios', 'Reseñas', 'Favoritos'];
       return tagsOrder.indexOf(a) - tagsOrder.indexOf(b);
     },

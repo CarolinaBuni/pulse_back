@@ -112,7 +112,7 @@ pulse-backend/
 
 ## Sincronización automática
 
-Los eventos se sincronizan automáticamente cada 6 horas desde Ticketmaster. También se puede hacer manualmente:
+Los eventos se sincronizan automáticamente cada 24 horas desde Ticketmaster. También se puede hacer manualmente:
 
 ```bash
 curl -X POST http://localhost:3000/api/sync
