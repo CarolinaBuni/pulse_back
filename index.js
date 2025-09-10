@@ -23,17 +23,17 @@ cloudinary.config( {
 } );
 
 // CORS
-app.use(cors({
+app.use( cors( {
      origin: [
           'https://react-final-hhrldkw3j-powermbas-projects.vercel.app',
           'https://react-final-lemon.vercel.app',
           'http://localhost:5173'
      ],
-     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
      credentials: true,
-     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
-     exposedHeaders: ['Content-Range', 'X-Content-Range']
-}));
+     allowedHeaders: [ 'Content-Type', 'Authorization', 'Origin', 'Accept' ],
+     exposedHeaders: [ 'Content-Range', 'X-Content-Range' ]
+} ) );
 
 app.use( express.json() );
 
@@ -58,31 +58,25 @@ app.get( '/docs', ( req, res ) => {
 // Ruta principal
 app.get( '/', ( req, res ) => {
      res.json( {
-          message: 'Bienvenido a la API de Pulse',
-          documentation: {
-               local: '/api-docs',
-               production: '/docs',
-               nota: 'En entorno de desarrollo local, usa /api-docs. En producción (Vercel), usa /docs.'
-          },
-          endpoints: {
-               users: '/api/users',
-               events: '/api/events',
-               favorites: '/api/favorites',
-               reviews: '/api/reviews',
-               sync: '/api/sync (POST para sincronización manual)',
-               clean: '/api/clean (POST para limpieza de eventos antiguos)'
+          "message": "Bienvenido a la API de Pulse",
+          "documentation": "/docs",
+          "endpoints": {
+               "users": "/api/users",
+               "events": "/api/events",
+               "favorites": "/api/favorites",
+               "reviews": "/api/reviews"
           }
      } );
 } );
 
 // Ruta para sincronización manual
-app.post('/api/sync', async (req, res) => {
+app.post( '/api/sync', async ( req, res ) => {
      try {
-          console.log('🔧 Solicitud de sincronización manual recibida');
+          console.log( '🔧 Solicitud de sincronización manual recibida' );
           const result = await runManualSync();
-          
-          if (result.success) {
-               res.json({
+
+          if ( result.success ) {
+               res.json( {
                     success: true,
                     message: 'Sincronización completada exitosamente',
                     data: {
@@ -90,55 +84,55 @@ app.post('/api/sync', async (req, res) => {
                          updatedEvents: result.updatedEvents,
                          errors: result.errors
                     }
-               });
+               } );
           } else {
-               res.status(500).json({
+               res.status( 500 ).json( {
                     success: false,
                     message: 'Error en la sincronización',
                     error: result.error
-               });
+               } );
           }
-     } catch (error) {
-          console.error('💥 Error en endpoint de sincronización:', error.message);
-          res.status(500).json({
+     } catch ( error ) {
+          console.error( '💥 Error en endpoint de sincronización:', error.message );
+          res.status( 500 ).json( {
                success: false,
                message: 'Error interno del servidor',
                error: error.message
-          });
+          } );
      }
-});
+} );
 
 // Ruta para limpieza manual de eventos antiguos
-app.post('/api/clean', async (req, res) => {
+app.post( '/api/clean', async ( req, res ) => {
      try {
-          console.log('🧹 Solicitud de limpieza manual recibida');
+          console.log( '🧹 Solicitud de limpieza manual recibida' );
           const result = await runManualClean();
-          
-          if (result.success) {
-               res.json({
+
+          if ( result.success ) {
+               res.json( {
                     success: true,
                     message: 'Limpieza completada exitosamente',
                     data: {
                          deletedCount: result.deletedCount,
                          protectedCount: result.protectedCount
                     }
-               });
+               } );
           } else {
-               res.status(500).json({
+               res.status( 500 ).json( {
                     success: false,
                     message: 'Error en la limpieza',
                     error: result.error
-               });
+               } );
           }
-     } catch (error) {
-          console.error('💥 Error en endpoint de limpieza:', error.message);
-          res.status(500).json({
+     } catch ( error ) {
+          console.error( '💥 Error en endpoint de limpieza:', error.message );
+          res.status( 500 ).json( {
                success: false,
                message: 'Error interno del servidor',
                error: error.message
-          });
+          } );
      }
-});
+} );
 
 // Rutas de la  API
 app.use( "/api/users", userRouter );
@@ -156,9 +150,9 @@ app.use( ( req, res ) => {
 app.listen( 3000, () => {
      console.log( `Server is running on: http://localhost:3000` );
      console.log( `API Documentation: http://localhost:3000/api-docs` );
-     
+
      // Solo ejecutar sync automático en desarrollo local
-     if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+     if ( process.env.NODE_ENV !== 'production' && !process.env.VERCEL ) {
           startAutoSync();
           console.log( `🤖 Sincronización automática activada (cada 24 horas) - DESARROLLO` );
      } else {
